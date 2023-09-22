@@ -29,7 +29,7 @@ def index():
             prodRes = requests.get(productLink)
             prodRes.encoding='utf-8'
             prod_html = bs(prodRes.text, "html.parser")
-            print(prod_html)
+            #print(prod_html)
             commentboxes = prod_html.find_all('div', {'class': "_16PBlm"})
 
             filename = searchString + ".csv"
@@ -72,6 +72,14 @@ def index():
                           "Comment": custComment}
                 reviews.append(mydict)
             logging.info("log my final result {}".format(reviews))
+            from pymongo.mongo_client import MongoClient
+            uri = "mongodb+srv://sourabhkrishnani:ssswww1234@cluster0.pcochq6.mongodb.net/"
+            # Create a new client and connect to the server
+            client = MongoClient(uri)
+            logging.info("Connected to mongoDB")
+            db = client['review_scrap']  # connect to data base
+            review_col =db['review_scrap_data']  # connect to collection
+            review_col.insert_many(reviews)  # push data into collections
             return render_template('result.html', reviews=reviews[0:(len(reviews)-1)])
         except Exception as e:
             logging.info(e)
